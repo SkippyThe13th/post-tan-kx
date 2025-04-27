@@ -13,7 +13,7 @@ plugins {
 	alias(libs.plugins.kordex.plugin)
 }
 
-group = "template"
+group = "post-tan-kx"
 version = "1.0-SNAPSHOT"
 
 dependencies {
@@ -53,12 +53,12 @@ kordEx {
 		// See https://docs.kordex.dev/data-collection.html
 		dataCollection(DataCollection.Standard)
 
-		mainClass = "template.AppKt"
+		mainClass = "posttan.AppKt"
 	}
 
 	i18n {
-		classPackage = "template.i18n"
-		translationBundle = "template.strings"
+		classPackage = "posttan.i18n"
+		translationBundle = "posttan.strings"
 	}
 }
 
