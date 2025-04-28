@@ -6,7 +6,7 @@ package posttan
 import dev.kord.common.entity.Snowflake
 import dev.kordex.core.ExtensibleBot
 import dev.kordex.core.utils.env
-import posttan.extensions.TestExtension
+import posttan.extensions.SlashCommandExtension
 import java.io.File
 
 val TEST_SERVER_ID = Snowflake(
@@ -33,7 +33,7 @@ suspend fun main() {
 		}
 
 		extensions {
-			add(::TestExtension)
+			add(::SlashCommandExtension)
 		}
 
 		if (devMode) {

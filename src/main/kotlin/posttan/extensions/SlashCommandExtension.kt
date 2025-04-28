@@ -1,73 +1,64 @@
 package posttan.extensions
 
 import dev.kordex.core.commands.Arguments
-import dev.kordex.core.commands.converters.impl.coalescingDefaultingString
+import dev.kordex.core.commands.application.slash.ephemeralSubCommand
+import dev.kordex.core.commands.application.slash.group
+import dev.kordex.core.commands.application.slash.publicSubCommand
 import dev.kordex.core.commands.converters.impl.defaultingString
 import dev.kordex.core.commands.converters.impl.user
 import dev.kordex.core.components.components
 import dev.kordex.core.components.publicButton
 import dev.kordex.core.extensions.Extension
-import dev.kordex.core.extensions.chatCommand
 import dev.kordex.core.extensions.publicSlashCommand
 import dev.kordex.core.i18n.withContext
-import dev.kordex.core.utils.respond
 import posttan.TEST_SERVER_ID
+import posttan.controllers.pizzaBox.PizzaBox
 import posttan.i18n.Translations
 
-class TestExtension : Extension() {
+class SlashCommandExtension : Extension() {
 	override val name = "test"
 
 	override suspend fun setup() {
-		chatCommand(::SlapArgs) {
-			name = Translations.Commands.Slap.name
-			description = Translations.Commands.Slap.description
 
-			check { failIf(event.message.author == null) }
+        //Commands for PizzaBox
+        publicSlashCommand() {
+            name = Translations.Commands.PizzaBox.name
+            description = Translations.Commands.PizzaBox.description
 
-			action {
-				// Don't slap ourselves on request, slap the requester!
-				val realTarget = if (arguments.target.id == event.kord.selfId) {
-					message.author!!
-				} else {
-					arguments.target
-				}
+            guild(TEST_SERVER_ID)
 
-				message.respond(
-					Translations.Commands.Slap.response
-						.withContext(this)
-						.translateNamed(
-							"target" to realTarget.mention,
-							"weapon" to arguments.weapon
-						)
-				)
-			}
-		}
+            group(Translations.Arguments.PizzaGroup.name) {
 
-		chatCommand {
-			name = Translations.Commands.Button.name
-			description = Translations.Commands.Button.description
+                //Subcommand to Open a Box
+                publicSubCommand() {
+                    name = Translations.Subcommands.Open.name
+                    description = Translations.Subcommands.Open.description
 
-			check { failIf(event.message.author == null) }
+                    action {
+                        val resultMessage = PizzaBox.openBox(getMember())
 
-			action {
-				message.respond {
-					components {
-						publicButton {
-							label = Translations.Components.Button.label
-								.withLocale(this@action.getLocale())
+                        respond {
+                            //TODO: replace with amount of slices gained or lost
+                            content = "You opened the box and got a number of slices..."
+                        }
+                    }
+                }
 
-							action {
-								respond {
-									content = Translations.Components.Button.response
-										.withLocale(getLocale())
-										.translate()
-								}
-							}
-						}
-					}
-				}
-			}
-		}
+                //Subcommand to see current slices
+                ephemeralSubCommand() {
+                    name = Translations.Subcommands.MySlices.name
+                    description = Translations.Subcommands.MySlices.description
+
+                    action {
+
+                        respond {
+                            //TODO: lookup user's slice count and print out
+                            content = "You have an amount of slices..."
+                        }
+                    }
+                }
+            }
+        }
 
 		publicSlashCommand(::SlapSlashArgs) {
 			name = Translations.Commands.Slap.name
@@ -98,6 +89,8 @@ class TestExtension : Extension() {
 			name = Translations.Commands.Button.name
 			description = Translations.Commands.Button.description
 
+            guild(TEST_SERVER_ID)
+
 			action {
 				respond {
 					components {
@@ -119,19 +112,11 @@ class TestExtension : Extension() {
 		}
 	}
 
-	inner class SlapArgs : Arguments() {
-		val target by user {
-			name = Translations.Arguments.Target.name
-			description = Translations.Arguments.Target.description
-		}
-
-		val weapon by coalescingDefaultingString {
-			name = Translations.Arguments.Weapon.name
-
-			defaultValue = "🐟"
-			description = Translations.Arguments.Weapon.description
-		}
-	}
+//    inner class PizzaBoxArgs : Arguments() {
+//        val callingUser by user {
+//            name
+//        }
+//    }
 
 	inner class SlapSlashArgs : Arguments() {
 		val target by user {
